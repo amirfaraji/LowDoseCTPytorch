@@ -1,3 +1,9 @@
+*.hdf5
+*.zip
+weights/
+lowdosect/
+.vscode/
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 

@@ -1,0 +1,70 @@
+language: python
+
+os:
+  - linux
+
+sudo: false
+
+addons:
+  apt:
+    packages:
+      - libboost-all-dev
+
+matrix:
+  include:
+    - env: CUDA=no CLANG=yes
+      python: "3.6"
+
+    - env: CUDA=no
+      python: "2.7"
+
+    - env: CUDA=no
+      python: "3.6"
+
+    - env: CUDA=yes
+      python: "2.7"
+      addons:
+        apt:
+          packages:
+            - libboost-all-dev
+            - nvidia-cuda-toolkit
+            - nvidia-cuda-dev
+            - nvidia-profiler
+
+    - env: CUDA=yes
+      python: "3.6"
+      addons:
+        apt:
+          packages:
+            - libboost-all-dev
+            - nvidia-cuda-toolkit
+            - nvidia-cuda-dev
+            - nvidia-profiler
+  exclude:
+    - os: linux
+
+
+before_install:
+  - if [[ "$TRAVIS_PYTHON_VERSION" == "2.7" ]]; then
+      wget https://repo.continuum.io/miniconda/Miniconda-latest-Linux-x86_64.sh -O miniconda.sh;
+    else
+      wget https://repo.continuum.io/miniconda/Miniconda3-latest-Linux-x86_64.sh -O miniconda.sh;
+    fi
+  - bash miniconda.sh -b -p $HOME/miniconda
+  - export PATH="$HOME/miniconda/bin:$PATH"
+  - conda config --set always_yes yes --set changeps1 no
+  - conda update conda
+
+install:
+  - conda install python=$TRAVIS_PYTHON_VERSION six numpy scipy cython
+  - conda info -a
+
+script:
+  - cd build/linux
+  - ./autogen.sh
+  - if [ x$CLANG == xyes ]; then export CXX=clang++; export CC=clang; fi
+  - if [ $CUDA == yes ]; then ./configure --prefix=$HOME/astra --with-python --with-cuda --with-install-type=module; else ./configure --prefix=$HOME/astra --with-python --without-cuda --with-install-type=module; fi
+  - make -j 4
+  - make test
+  - make install
+  - python -c "import astra; astra.test_noCUDA()"

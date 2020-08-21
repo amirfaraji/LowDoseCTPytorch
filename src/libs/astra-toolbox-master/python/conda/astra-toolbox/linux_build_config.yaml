@@ -1,0 +1,12 @@
+python:
+  - 2.7
+  - 3.6
+  - 3.7
+  - 3.8
+numpy:
+  - 1.11
+
+c_compiler_version:
+  - 7.3
+cxx_compiler_version:
+  - 7.3

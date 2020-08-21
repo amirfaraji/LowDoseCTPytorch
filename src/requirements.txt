@@ -1,0 +1,17 @@
+astra-toolbox==1.9.9.dev0
+dival==0.4.7
+h5py==2.10.0
+matplotlib==3.3.0
+numpy==1.19.1
+odl==0.7.0
+pandas==1.1.0
+Pillow==7.2.0
+progress==1.5
+scikit-image==0.17.2
+scikit-learn==0.23.1
+scipy==1.5.2
+seaborn==0.10.1
+torch==1.6.0+cu101
+torchsummary==1.5.1
+torchvision==0.7.0+cu101
+tqdm==4.48.0
