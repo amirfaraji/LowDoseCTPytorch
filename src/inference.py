@@ -4,7 +4,7 @@ import numpy as np
 import torch
 
 from client.ModelClient import ReconstructionModelClient, Bar
-from model.Models import UNet, BiggerUnet
+from model.Models import UNet, BiggerUnet, UnetPlusPlus, BiggerUnetPlusPlus
 from torch.utils.data import DataLoader
 from utils.DataHandler import LowDoseCTDataset
 from utils.RayTransform import RayTransform
@@ -39,13 +39,12 @@ def get_args():
     return args
 
 def inference():
-    net = BiggerUnet(in_channel=1, num_classes=1)
+    net = BiggerUnetPlusPlus(in_channel=1, num_classes=1)
     net.to(device=device, dtype=torch.float)
 
-    PATH = "./best_model_wts.pt"
-    # PATH = os.path.join(os.path.dirname(__file__),"./weights/NoTransformsBestWeightsAt180-180/best_model_wts.pt")
-    # PATH = os.path.join(os.path.dirname(__file__),"./weights/NoTransformsBestWeightsMSEFullSize/best_model_wts.pt")
-    # PATH = os.path.join(os.path.dirname(__file__),"./weights/NoTransformsBestWeightsSSIMLossFullSize/best_model_wts.pt") # Best Weights
+    # PATH = "./best_model_wts.pt"
+    # PATH = os.path.join(os.path.dirname(__file__),"./weights/BestWeights/BiggerUnet_best_model_wts.pt")
+    PATH = os.path.join(os.path.dirname(__file__),"./weights/BestWeights/BiggerUnetplusplusbest_model_wts.pt") # Best SSIM: 0.8431391701528878, PSNR: 34.87763746426393
     batch_size = 1
 
     net.load_state_dict(torch.load(PATH))
@@ -72,14 +71,20 @@ def inference():
         transform          = None,
         target_transform   = None,
         resize             = None,
-        preprocessing_flag = True,
+        preprocessing_flag = False,
     )
 
     test_dataloader = DataLoader(test, batch_size=1,
                             shuffle=False, num_workers=12)
 
-
-
+    # img = test.__getitem__(1)
+    # gt = img['gt']
+    # img = img['observation']
+    # out = client.single_predict(net, torch.unsqueeze(img,0), device)
+    # ssim_val = SSIM(out[0,0,:,:], gt[0,:,:])
+    # psnr_val = PSNR(out[0,0,:,:], gt[0,:,:])
+    # print(ssim_val, psnr_val)
+    # visualize(img[0,:,:], gt[0,:,:], out[0,0,:,:])
     evaluation(client, net, test_dataloader, device)
     # predict_on_smaller_images_upscaled_after(client, net, full_size_test_dataloader, half_size_test_dataloader, device)
     

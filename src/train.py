@@ -7,7 +7,7 @@ import torch.optim as optim
 import torchvision.transforms as transforms
 
 from client.ModelClient import ReconstructionModelClient
-from model.Models import UNet, BiggerUnet, UnetPlusPlus
+from model.Models import *
 from torch.utils.data import DataLoader
 from utils.DataHandler import TrainDataset, LowDoseCTDataset
 from utils.RayTransform import RayTransform
@@ -46,12 +46,15 @@ def no_fbp(x: np.array) -> np.array:
 
 
 def train():
-    net = UnetPlusPlus(in_channel=1, num_classes=1)
+    net = BiggerUnetPlusPlus(in_channel=1, num_classes=1)
     net.to(device=device, dtype=torch.float)
+
+    PATH = "./best_model_wts.pt"
+    net.load_state_dict(torch.load(PATH))
     
-    epochs=7
+    epochs=5
     batch_size = 4
-    lr=1e-4
+    lr=1e-5
     patience=3
 
     criterion = MSESSIMLoss() # MSESSIMLoss() MAESSIMLoss() MSSSIMLoss() SSIMLoss() nn.MSELoss() MixMSEMAELoss()
@@ -92,16 +95,18 @@ def train():
         transform          = None,
         target_transform   = None,        
         resize             = None,
-        preprocessing_flag = True,
+        preprocessing_flag = False,
     )
 
-    # train = TrainDataset(
-    #     ground_truth_dir    = train_ground_truth_filename,
-    #     ray_transform_class = RT,
-    #     transform           = None,
-    #     target_transform    = None,
-    #     resize              = None,
-    #     preprocessing_flag  = True,
+    # train = PatchesLowDoseCTDataset(
+    #     observation_dir    = train_observation_filename,
+    #     ground_truth_dir   = train_ground_truth_filename,
+    #     fbp_op             = no_fbp,
+    #     phase              = 'train',
+    #     transform          = None,
+    #     target_transform   = None,        
+    #     resize             = None,
+    #     preprocessing_flag = False,
     # )
 
     validation = LowDoseCTDataset(
@@ -112,7 +117,7 @@ def train():
         transform          = None,
         target_transform   = None,        
         resize             = None,
-        preprocessing_flag = True,
+        preprocessing_flag = False,
     )
 
 
