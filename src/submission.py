@@ -3,7 +3,7 @@ import numpy as np
 import torch
 
 from client.ModelClient import ReconstructionModelClient, Bar
-from model.Models import UNet, BiggerUnet
+from model.Models import UNet, BiggerUnet, BiggerUnetPlusPlus
 from torch.utils.data import DataLoader
 from utils.DataHandler import ChallengeDataset
 from utils.RayTransform import RayTransform
@@ -19,11 +19,13 @@ device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
 
 def inference():
-    net = BiggerUnet(in_channel=1, num_classes=1)
+    net = BiggerUnetPlusPlus(in_channel=1, num_classes=1)
     net.to(device=device)
 
     # PATH = os.path.join(os.path.dirname(__file__),"./weights/NoTransformsBestWeightsAt180-180/best_model_wts.pt")
-    PATH = os.path.join(os.path.dirname(__file__),"./weights/BiggerNetworkTransformMSESSIM/best_model_wts.pt")
+    # PATH = os.path.join(os.path.dirname(__file__),"./weights/BiggerNetworkTransformMSESSIM/best_model_wts.pt")
+    # PATH = os.path.join(os.path.dirname(__file__),"./weights/BestWeights/BiggerUnet_best_model_wts.pt")
+    PATH = "./best_model_wts.pt"
     batch_size = 1
 
     net.load_state_dict(torch.load(PATH))
@@ -41,7 +43,7 @@ def inference():
         transform          = None,
         target_transform   = None,
         resize             = None,
-        preprocessing_flag = True,
+        preprocessing_flag = False,
     )
 
     challenge_dataloader = DataLoader(challenge, batch_size=batch_size,
@@ -50,7 +52,7 @@ def inference():
     
     OUTPUT_PATH = './src/data/challenge_reconstruction'
     os.makedirs(OUTPUT_PATH, exist_ok=True)
-    bar = Bar(f'Processing test set', max=len(challenge_dataloader), suffix='%(index)d / %(max)d - %(eta)d secs')
+    bar = Bar(f'Processing Challenge set', max=len(challenge_dataloader), suffix='%(index)d / %(max)d - %(eta)d secs')
 
     net.eval()
     for i, batch in enumerate(challenge_dataloader):

@@ -9,7 +9,7 @@ import torchvision.transforms as transforms
 from client.ModelClient import ReconstructionModelClient
 from model.Models import *
 from torch.utils.data import DataLoader
-from utils.DataHandler import TrainDataset, LowDoseCTDataset
+from utils.DataHandler import LowDoseCTDataset
 from utils.RayTransform import RayTransform
 from utils.Preprocessing import Preprocess
 from utils.Metrics import SSIMLoss, MSSSIMLoss, MSESSIMLoss, MAESSIMLoss, MixMSEMAELoss
@@ -52,14 +52,14 @@ def train():
     PATH = "./best_model_wts.pt"
     net.load_state_dict(torch.load(PATH))
     
-    epochs=5
+    epochs=3
     batch_size = 4
     lr=1e-5
     patience=3
 
     criterion = MSESSIMLoss() # MSESSIMLoss() MAESSIMLoss() MSSSIMLoss() SSIMLoss() nn.MSELoss() MixMSEMAELoss()
     optimizer = optim.RMSprop(net.parameters(), lr=lr, weight_decay=1e-8, momentum=0.9)
-    # optimizer = optim.Adam(net.parameters(), lr=lr)
+    # optimizer = optim.SGD(net.parameters(), lr=lr, weight_decay=1e-8, momentum=0.9, nesterov=True)
     scheduler = optim.lr_scheduler.ReduceLROnPlateau(optimizer, 'min' if net.num_classes > 1 else 'max', patience=patience)
 
     train_observation_filename = os.path.join(os.path.dirname(__file__),"./data/observation_train")
@@ -75,47 +75,22 @@ def train():
 
     RT = RayTransform()
 
-    
-
-    data_transform = transforms.Compose([
-            transforms.RandomHorizontalFlip(),
-            transforms.RandomVerticalFlip(),
-        ])
-
-    target_data_transform = transforms.Compose([
-            transforms.RandomHorizontalFlip(),
-            transforms.RandomVerticalFlip(),
-        ])
-
     train = LowDoseCTDataset(
         observation_dir    = train_observation_filename,
         ground_truth_dir   = train_ground_truth_filename,
         fbp_op             = no_fbp,
         phase              = 'train',
-        transform          = None,
-        target_transform   = None,        
+        transfo_flag       = True,       
         resize             = None,
         preprocessing_flag = False,
     )
-
-    # train = PatchesLowDoseCTDataset(
-    #     observation_dir    = train_observation_filename,
-    #     ground_truth_dir   = train_ground_truth_filename,
-    #     fbp_op             = no_fbp,
-    #     phase              = 'train',
-    #     transform          = None,
-    #     target_transform   = None,        
-    #     resize             = None,
-    #     preprocessing_flag = False,
-    # )
 
     validation = LowDoseCTDataset(
         observation_dir    = val_observation_filename,
         ground_truth_dir   = val_ground_truth_filename,
         fbp_op             = RT.fbp,
         phase              = 'validation',
-        transform          = None,
-        target_transform   = None,        
+        transfo_flag       = None,       
         resize             = None,
         preprocessing_flag = False,
     )

@@ -42,9 +42,11 @@ def inference():
     net = BiggerUnetPlusPlus(in_channel=1, num_classes=1)
     net.to(device=device, dtype=torch.float)
 
-    # PATH = "./best_model_wts.pt"
-    # PATH = os.path.join(os.path.dirname(__file__),"./weights/BestWeights/BiggerUnet_best_model_wts.pt")
-    PATH = os.path.join(os.path.dirname(__file__),"./weights/BestWeights/BiggerUnetplusplusbest_model_wts.pt") # Best SSIM: 0.8431391701528878, PSNR: 34.87763746426393
+    PATH = "./best_model_wts.pt"
+    # PATH = os.path.join(os.path.dirname(__file__),"./weights/UnetMSESSSIM/best_model_wts.pt") # SSIM: 0.8012296540502425, PSNR: 32.05215252747701
+    # PATH = os.path.join(os.path.dirname(__file__),"./weights/BestWeights/SmallerUnet_best_model_wts.pt") # SSIM: 0.8022275263184017, PSNR: 32.060868586650976
+    # PATH = os.path.join(os.path.dirname(__file__),"./weights/BestWeights/BiggerUnet_best_model_wts.pt") # SSIM: 0.8042886567222887, PSNR: 32.670939523169096
+    # PATH = os.path.join(os.path.dirname(__file__),"./weights/BestWeights/BiggerUnetplusplusbest_model_wts.pt") # Best SSIM: 0.8431391701528878, PSNR: 34.87763746426393
     batch_size = 1
 
     net.load_state_dict(torch.load(PATH))
@@ -68,8 +70,7 @@ def inference():
         ground_truth_dir   = test_ground_truth_filename,
         fbp_op             = RT.fbp,
         phase              = 'test',
-        transform          = None,
-        target_transform   = None,
+        transfo_flag       = False, 
         resize             = None,
         preprocessing_flag = False,
     )
