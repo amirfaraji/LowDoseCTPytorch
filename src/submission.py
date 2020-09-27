@@ -31,7 +31,7 @@ def inference():
     net.load_state_dict(torch.load(PATH))
 
 
-    challenge_observation_filename = os.path.join(os.path.dirname(__file__),"./data/observation_challenge")
+    challenge_observation_filename = os.path.join(os.path.dirname(__file__), "./data/observation_challenge")
 
     client = ReconstructionModelClient()
 
@@ -46,8 +46,12 @@ def inference():
         preprocessing_flag = False,
     )
 
-    challenge_dataloader = DataLoader(challenge, batch_size=batch_size,
-                            shuffle=False, num_workers=8)
+    challenge_dataloader = DataLoader(
+        challenge,
+        batch_size=batch_size,
+        shuffle=False,
+        num_workers=8
+    )
 
     
     OUTPUT_PATH = './src/data/challenge_reconstruction'
@@ -61,7 +65,7 @@ def inference():
         outputs = net(inputs)
         bar.next()
         # visualize(inputs[0,0,:,:].detach().cpu().numpy(), outputs[0,0,:,:].detach().cpu().numpy())
-        save_reconstruction(OUTPUT_PATH, i, outputs[0,0,:,:].detach().cpu().numpy())
+        save_reconstruction(OUTPUT_PATH, i, outputs[0, 0, :, :].detach().cpu().numpy())
     bar.finish()
     pack_submission(OUTPUT_PATH)
     

@@ -25,8 +25,7 @@ class DiceCoeff(Function):
         grad_input = grad_target = None
 
         if self.needs_input_grad[0]:
-            grad_input = grad_output * 2 * (target * self.union - self.inter) \
-                         / (self.union * self.union)
+            grad_input = grad_output * 2 * (target * self.union - self.inter) / (self.union * self.union)
         if self.needs_input_grad[1]:
             grad_target = None
 
@@ -176,6 +175,7 @@ def dice_coeff(input, target):
         s = s + DiceCoeff().forward(c[0], c[1])
 
     return s / (i + 1)
+
 
 def jaccard_index(input, target):
     """jaccard index for batches"""
