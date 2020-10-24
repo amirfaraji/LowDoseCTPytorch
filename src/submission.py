@@ -18,7 +18,7 @@ torch.cuda.empty_cache()
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
 
-def inference():
+def submission():
     net = BiggerUnetPlusPlus(in_channel=1, num_classes=1)
     net.to(device=device)
 
@@ -72,4 +72,4 @@ def inference():
 
 
 if __name__ == '__main__':
-    inference()
+    submission()
