@@ -25,7 +25,8 @@ def submission():
     # PATH = os.path.join(os.path.dirname(__file__),"./weights/NoTransformsBestWeightsAt180-180/best_model_wts.pt")
     # PATH = os.path.join(os.path.dirname(__file__),"./weights/BiggerNetworkTransformMSESSIM/best_model_wts.pt")
     # PATH = os.path.join(os.path.dirname(__file__),"./weights/BestWeights/BiggerUnet_best_model_wts.pt")
-    PATH = "./best_model_wts.pt"
+    PATH = os.path.join(os.path.dirname(__file__),"./weights/best_model_wts.pt")
+    # PATH = "./best_model_wts.pt"
     batch_size = 1
 
     net.load_state_dict(torch.load(PATH))
@@ -64,12 +65,23 @@ def submission():
         inputs = inputs.to(device, dtype=torch.float)
         outputs = net(inputs)
         bar.next()
-        # visualize(inputs[0,0,:,:].detach().cpu().numpy(), outputs[0,0,:,:].detach().cpu().numpy())
-        save_reconstruction(OUTPUT_PATH, i, outputs[0, 0, :, :].detach().cpu().numpy())
+        submitted_img = read_file(OUTPUT_PATH, i//128, i%128)
+        print("SSIM:", SSIM(outputs[0,0,:,:].detach().cpu().numpy(), submitted_img))
+        visualize(inputs[0,0,:,:].detach().cpu().numpy(), outputs[0,0,:,:].detach().cpu().numpy(), submitted_img)
+        # save_reconstruction(OUTPUT_PATH, i, outputs[0, 0, :, :].detach().cpu().numpy())
     bar.finish()
-    pack_submission(OUTPUT_PATH)
+    # pack_submission(OUTPUT_PATH)
     
+def read_file(path, file_idx, slice_idx):
+    import h5py
+    from glob import glob
+    filenames = sorted(glob(path+'/*.hdf5'))
+    
+    f = filenames[file_idx]
+    hf = h5py.File(f, 'r')
+    data = hf['data']
 
+    return data[slice_idx,:,:]
 
 if __name__ == '__main__':
     submission()
